@@ -4,33 +4,32 @@ import Filter from "./Filter";
 import Item from "./Item";
 
 function ShoppingList() {
-  const [selectedCategory, setSelectedCategory] = useState("All");
   const [items, setItems] = useState([]);
 
-  function handleCategoryChange(category) {
-    setSelectedCategory(category);
+  useEffect(() => {
+    fetch("http://localhost:4000/items")
+      .then((r) => r.json())
+      .then((items) => setItems(items));
+  }, []);
+
+  // Callback function to update an item in the state
+  function handleUpdateItem(updatedItem) {
+    const updatedItems = items.map((item) =>
+      item.id === updatedItem.id ? updatedItem : item
+    );
+    setItems(updatedItems);
   }
-
-  const itemsToDisplay = items.filter((item) => {
-    if (selectedCategory === "All") return true;
-
-    return item.category === selectedCategory;
-  });
 
   return (
     <div className="ShoppingList">
-      <ItemForm />
-      <Filter
-        category={selectedCategory}
-        onCategoryChange={handleCategoryChange}
-      />
+      {/* Pass the handleUpdateItem function as a prop */}
       <ul className="Items">
-        {itemsToDisplay.map((item) => (
-          <Item key={item.id} item={item} />
+        {items.map((item) => (
+          <Item key={item.id} item={item} onUpdateItem={handleUpdateItem} />
         ))}
       </ul>
     </div>
   );
 }
 
-export default ShoppingList;
+export default ShoppingList
